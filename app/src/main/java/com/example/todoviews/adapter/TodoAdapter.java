@@ -54,7 +54,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         holder.todoIsFavouriteCeckBox.setChecked(todo.isFavourite());
 
         if(todo.getDueDate() < System.currentTimeMillis()) {
-            holder.todoTitleText.setTextColor(R.color.red);
+            holder.todoTitleText.setTextColor(context.getColor(R.color.red));
         }
 
         holder.todoIsDoneCeckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -102,6 +102,10 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         accessor.deleteItem(todoList.get(position));
     }
 
+    public void editTodo(int position) {
+        accessor.updateItem(todoList.get(position));
+    }
+
     public Todo lookupItem(Todo item) {
         for (Todo current : this.todoList) {
             if (current.getId() == item.getId()) {
@@ -109,5 +113,9 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
             }
         }
         return null;
+    }
+
+    public Todo getTodoAtPosition(int pos) {
+        return todoList.get(pos);
     }
 }
