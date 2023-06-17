@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -25,6 +27,7 @@ public class TodoListActivity extends AppCompatActivity {
     private RecyclerView todoRecyclerView;
     private ITodoListAccessor accessor;
     private FloatingActionButton addTodoBtn;
+    private ToggleButton sortingSwitch;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private TodoAdapter adapter;
 
@@ -36,7 +39,6 @@ public class TodoListActivity extends AppCompatActivity {
         todoRecyclerView = findViewById(R.id.todoRecyclerView);
         todoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        //accessor = new TodoListFromStaticAccessor(this);
         accessor = new TodoListFromRoomAccessor(this);
 
         adapter = accessor.getAdapter();
@@ -52,7 +54,13 @@ public class TodoListActivity extends AppCompatActivity {
                         // new todoitem
                         accessor.addTodo(new Todo(resultData.getString("TITLE"), resultData.getString("DESCRIPTION"), resultData.getLong("DUE_DATE")));
                     } else {
+                        // update todoItem
+                        Todo todo = adapter.lookupItem(resultData.getLong("ID"));
+                        todo.setTitle(resultData.getString("TITLE", todo.getTitle()));
+                        todo.setDescription(resultData.getString("DESCRIPTION", todo.getDescription()));
+                        todo.setDueDate(resultData.getLong("DUE_DATE", todo.getDueDate()));
 
+                        accessor.updateItem(todo);
                     }
                 }
             }
@@ -63,6 +71,9 @@ public class TodoListActivity extends AppCompatActivity {
 
         addTodoBtn = findViewById(R.id.openAddTodoDialogButton);
         addTodoBtn.setOnClickListener(this::onAddTodoBtnClick);
+
+        sortingSwitch = findViewById(R.id.sortingToggleButton);
+        sortingSwitch.setOnCheckedChangeListener(this::onSortingSwitchChanged);
     }
 
     private void onAddTodoBtnClick(View v) {
@@ -83,5 +94,13 @@ public class TodoListActivity extends AppCompatActivity {
         updateTodoIntent.putExtra("DUE_DATE", todo.getDueDate());
 
         activityResultLauncher.launch(updateTodoIntent);
+    }
+
+    public void onSortingSwitchChanged(CompoundButton compoundButton, boolean isChecked) {
+        if(isChecked) {
+            ((TodoListFromRoomAccessor)this.accessor).setDateFirstSorting();
+        } else {
+            ((TodoListFromRoomAccessor)this.accessor).setFavouriteFirstSorting();
+        }
     }
 }

@@ -71,6 +71,8 @@ public class todoDetailsActivity extends AppCompatActivity {
         todoTitle = todoTitleEdit.getText().toString();
         todoDescription = todoDescriptionEdit.getText().toString();
 
+        todoDueDate.setTime(0);
+
         todoDueDate.setYear(todoDatePicker.getYear() - 1900);
         todoDueDate.setMonth(todoDatePicker.getMonth());
         todoDueDate.setDate(todoDatePicker.getDayOfMonth());

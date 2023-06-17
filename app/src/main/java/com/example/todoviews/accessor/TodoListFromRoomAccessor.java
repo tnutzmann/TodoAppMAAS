@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class TodoListFromRoomAccessor implements ITodoListAccessor{
-    //private List<Todo> todoList;
+    private int sortMode = 0; // 0 = Favourite first, 1 = dueDate first
     private TodoAdapter adapter;
     protected static final String logger = ITodoListAccessor.class.getName();
 
@@ -55,12 +55,12 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
     @Override
     public void updateItem(Todo newTodo) {
         Todo oldTodo = this.adapter.lookupItem(newTodo);
+        oldTodo.update(newTodo);
         Thread th = new Thread(() ->{
             Log.i(logger, "UPDATE todo: " + oldTodo);
             AppDatabase.getInstance(this.context).todoDao().updateTodo(oldTodo);
         });
         th.start();
-        oldTodo.update(newTodo);
         this.sortTodoList();
         this.adapter.notifyDataSetChanged();
     }
@@ -87,9 +87,46 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
 
     }
 
+    public void setFavouriteFirstSorting() {
+        this.sortMode = 0;
+        sortTodoList();
+        this.adapter.notifyDataSetChanged();
+    }
+
+    public void setDateFirstSorting() {
+        this.sortMode = 1;
+        sortTodoList();
+        this.adapter.notifyDataSetChanged();
+    }
+
     public void sortTodoList() {
-        this.adapter.getTodoList().sort((Comparator<Todo>) (t1, t2) -> {
-            return t1.compareTo(t2);
-        });
+        if(this.sortMode == 0) {
+            this.adapter.getTodoList().sort((t1, t2) -> {
+                if(t1.isDone() == t2.isDone()) {
+                    if(t1.isFavourite() == t2.isFavourite()) {
+                        return new Long(t1.getDueDate()).compareTo(new Long(t2.getDueDate()));
+                    }
+                    if(t1.isFavourite()) return -1;
+                    return 1;
+                }
+                if(t1.isDone()) return 1;
+                return -1;
+            });
+        } else {
+            this.adapter.getTodoList().sort((t1, t2) -> {
+                if(t1.isDone() == t2.isDone()) {
+                    if(t1.getDueDate() == t2.getDueDate()) {
+                        Log.i(logger, "Due Date are the same!");
+                        if(t1.isFavourite() == t2.isFavourite())  return 0;
+                        if(t1.isFavourite()) return -1;
+                        return 1;
+                    }
+                    return new Long(t1.getDueDate()).compareTo(new Long(t2.getDueDate()));
+                }
+                if(t1.isDone()) return 1;
+                return -1;
+            });
+        }
+
     }
 }

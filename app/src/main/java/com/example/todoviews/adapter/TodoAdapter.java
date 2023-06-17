@@ -115,6 +115,15 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         return null;
     }
 
+    public Todo lookupItem(long id) {
+        for (Todo current : this.todoList) {
+            if (current.getId() == id) {
+                return current;
+            }
+        }
+        return null;
+    }
+
     public Todo getTodoAtPosition(int pos) {
         return todoList.get(pos);
     }
