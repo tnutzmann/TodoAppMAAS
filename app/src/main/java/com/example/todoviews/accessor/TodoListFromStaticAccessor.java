@@ -40,10 +40,10 @@ public class TodoListFromStaticAccessor implements ITodoListAccessor{
         String[] strings = this.context.getResources().getStringArray(R.array.todoItems);
         todoList = new ArrayList<>();
         for(String s : strings) {
-            todoList.add(new Todo(s, "Testing!!!"));
+            todoList.add(new Todo(s, "Testing!!!", 0));
         }
         this.sortTodoList();
-        this.adapter = new TodoAdapter(this.context, this.todoList);
+        this.adapter = new TodoAdapter(this.context, this.todoList, this);
         return adapter;
     }
 

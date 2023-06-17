@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.example.todoviews.R;
+import com.example.todoviews.accessor.ITodoListAccessor;
 import com.example.todoviews.models.Todo;
 
 import java.util.ArrayList;

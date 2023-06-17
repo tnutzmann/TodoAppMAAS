@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class TodoListFromRoomAccessor implements ITodoListAccessor{
-    private List<Todo> todoList;
+    //private List<Todo> todoList;
     private TodoAdapter adapter;
     protected static final String logger = ITodoListAccessor.class.getName();
 
@@ -21,49 +21,58 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
 
     public TodoListFromRoomAccessor(Context context) {
         this.context = context;
-        //adapter = new TodoAdapter(this.context, this.todoList);
     }
 
     @Override
     public void addTodo(Todo item) {
         Thread th = new Thread(() -> {
                 AppDatabase.getInstance(context).todoDao().insert(item);
-                Log.i("Room", "INSERT: "+ item);
+                Log.i(logger, "INSERT: "+ item);
 
         });
         th.start();
-        this.todoList.add(item);
+        this.adapter.getTodoList().add(item);
+        this.sortTodoList();
         this.adapter.notifyDataSetChanged();
     }
 
     @Override
     public TodoAdapter getAdapter() {
-        this.todoList = new ArrayList<>();
+        List<Todo> todoList = new ArrayList<>();
         Thread th = new Thread(() -> {
             for(Todo t : AppDatabase.getInstance(context).todoDao().getAll()) {
-                this.todoList.add(t);
+                todoList.add(t);
             }
-            //this.todoList = AppDatabase.getInstance(context).todoDao().getAll();
-            Log.i("Room", "GET ALL: "+ todoList);
+            Log.i(logger, "GET ALL: "+ todoList);
+            this.sortTodoList();
             this.adapter.notifyDataSetChanged();
         });
         th.start();
-        this.sortTodoList();
-        this.adapter = new TodoAdapter(this.context, this.todoList);
+        this.adapter = new TodoAdapter(this.context, todoList, this);
         return this.adapter;
     }
 
     @Override
-    public void updateItem(Todo item) {
-        Log.i(logger, "updating todo: " + item);
-        lookupItem(item).update(item);
+    public void updateItem(Todo newTodo) {
+        Todo oldTodo = this.adapter.lookupItem(newTodo);
+        Thread th = new Thread(() ->{
+            Log.i(logger, "UPDATE todo: " + oldTodo);
+            AppDatabase.getInstance(this.context).todoDao().updateTodo(oldTodo);
+        });
+        th.start();
+        oldTodo.update(newTodo);
+        this.sortTodoList();
         this.adapter.notifyDataSetChanged();
     }
 
     @Override
     public void deleteItem(Todo item) {
-        AppDatabase.getInstance(this.context).todoDao().deleteTodo(item);
-        this.todoList.remove(lookupItem(item));
+        Thread th = new Thread(() -> {
+            Log.i(logger, "DELETE todo: " + item);
+            AppDatabase.getInstance(this.context).todoDao().deleteTodo(item);
+        });
+        th.start();
+        this.adapter.getTodoList().remove(this.adapter.lookupItem(item));
         this.adapter.notifyDataSetChanged();
     }
 
@@ -72,14 +81,6 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
         return null;
     }
 
-    private Todo lookupItem(Todo item) {
-        for (Todo current : this.todoList) {
-            if (current.getId() == item.getId()) {
-                return current;
-            }
-        }
-        return null;
-    }
 
     @Override
     public void close() {
@@ -87,7 +88,7 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
     }
 
     public void sortTodoList() {
-        this.todoList.sort((Comparator<Todo>) (t1, t2) -> {
+        this.adapter.getTodoList().sort((Comparator<Todo>) (t1, t2) -> {
             return t1.compareTo(t2);
         });
     }

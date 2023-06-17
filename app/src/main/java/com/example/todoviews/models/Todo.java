@@ -15,10 +15,10 @@ public class Todo {
     private boolean isFavourite = false;
     private long dueDate;
 
-    public Todo(String title, String description) {
-        //setId(-1);
+    public Todo(String title, String description, long dueDate) {
         this.title = title;
         this.description = description;
+        this.dueDate = dueDate;
     }
 
     public Todo(long id,String title, String description, boolean isDone, boolean isFavorite, long dueDate) {
