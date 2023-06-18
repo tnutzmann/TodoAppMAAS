@@ -1,13 +1,12 @@
 package com.example.todoviews;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.TimePicker;
+import android.widget.*;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -19,8 +18,10 @@ public class todoDetailsActivity extends AppCompatActivity {
     private EditText todoDescriptionEdit;
     private DatePicker todoDatePicker;
     private TimePicker todoTimePicker;
+    private CheckBox todoIsDoneCheckBox;
     private Button saveButton;
     private Button backButton;
+    private Button deleteButton;
 
     // todo-data
     private long todoId;
@@ -28,6 +29,7 @@ public class todoDetailsActivity extends AppCompatActivity {
     private Date todoDueDate;
     private String todoTitle;
     private String todoDescription;
+    private boolean todoIsDone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +41,11 @@ public class todoDetailsActivity extends AppCompatActivity {
         todoDescriptionEdit = findViewById(R.id.detailsTodoDescription);
         todoDatePicker = findViewById(R.id.detailsTodoDate);
         todoTimePicker = findViewById(R.id.detailsTodoTime);
+        todoIsDoneCheckBox = findViewById(R.id.detailsTodoIsDoneCheckBox);
+
         saveButton = findViewById(R.id.todoDetailsSaveButton);
         backButton = findViewById(R.id.todoDetailsBackButton);
+        deleteButton = findViewById(R.id.todoDetailsDeleteButton);
 
         // get todo data
         caller = getIntent();
@@ -51,6 +56,8 @@ public class todoDetailsActivity extends AppCompatActivity {
         if(todoTitle == null) todoTitle = "";
         todoDescription = caller.getStringExtra("DESCRIPTION");
         if(todoDescription == null) todoDescription = "";
+        todoIsDone = caller.getBooleanExtra("IS_DONE", false);
+
 
         // write data to UI elements
         todoTitleEdit.setText(todoTitle);
@@ -62,26 +69,28 @@ public class todoDetailsActivity extends AppCompatActivity {
         todoTimePicker.setHour(todoDueDate.getHours());
         todoTimePicker.setMinute(todoDueDate.getMinutes());
 
+        todoIsDoneCheckBox.setChecked(todoIsDone);
+
         // register button events
         saveButton.setOnClickListener(this::saveTodo);
         backButton.setOnClickListener(this::abort);
+        deleteButton.setOnClickListener(this::deleteTodo);
     }
 
     void updateTodoValues() {
         todoTitle = todoTitleEdit.getText().toString();
         todoDescription = todoDescriptionEdit.getText().toString();
-
+        // date and Time handling
         todoDueDate.setTime(0);
-
         todoDueDate.setYear(todoDatePicker.getYear() - 1900);
         todoDueDate.setMonth(todoDatePicker.getMonth());
         todoDueDate.setDate(todoDatePicker.getDayOfMonth());
-
         todoDueDate.setSeconds(0);
         todoDueDate.setMinutes(todoTimePicker.getMinute());
         todoDueDate.setHours(todoTimePicker.getHour());
-
         todoDueDateTimestamp = todoDueDate.getTime();
+
+        todoIsDone = todoIsDoneCheckBox.isChecked();
     }
 
     void saveTodo(View v) {
@@ -92,8 +101,28 @@ public class todoDetailsActivity extends AppCompatActivity {
         resultIntent.putExtra("TITLE", todoTitle);
         resultIntent.putExtra("DESCRIPTION", todoDescription);
         resultIntent.putExtra("DUE_DATE", todoDueDateTimestamp);
+        resultIntent.putExtra("IS_DONE", todoIsDone);
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
+    }
+
+    void deleteTodo(View v) {
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+        alertBuilder.setTitle("DELETE TDOD");
+        alertBuilder.setMessage("Are you sure to delete this TODO");
+        alertBuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("ID", todoId);
+                resultIntent.putExtra("DELETED", true);
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
+            }
+        });
+        alertBuilder.setNegativeButton("Cancel", null);
+        AlertDialog dialog = alertBuilder.create();
+        dialog.show();
     }
 
     void abort(View v) {

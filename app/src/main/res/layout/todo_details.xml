@@ -14,7 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/detailsTodoTitleText"
-        android:layout_margin="4sp"/>
+        android:layout_margin="4sp"
+        android:singleLine="true"/>
 
     <TextView
         android:id="@+id/detailsTodoDescriptionText"
@@ -31,12 +32,21 @@
         android:layout_below="@id/detailsTodoDescriptionText"
         android:layout_margin="4sp"/>
 
+    <CheckBox
+        android:id="@+id/detailsTodoIsDoneCheckBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="is Done"
+        android:layout_marginHorizontal="32sp"
+        android:layout_below="@id/detailsTodoDescription"
+        />
+
     <TextView
         android:id="@+id/detailsTodoDueDateText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Due Date"
-        android:layout_below="@id/detailsTodoDescription"
+        android:layout_below="@id/detailsTodoIsDoneCheckBox"
         android:layout_margin="4sp"/>
 
     <DatePicker
@@ -63,19 +73,29 @@
 
         <Button
             android:id="@+id/todoDetailsBackButton"
-            android:layout_width="128sp"
+            android:layout_width="100sp"
             android:layout_height="64sp"
             android:text="BACK"
-            android:layout_marginHorizontal="16sp"
+            android:textStyle="bold"
+            android:layout_marginHorizontal="8sp"
             />
 
         <Button
             android:id="@+id/todoDetailsSaveButton"
-            android:layout_width="128sp"
+            android:layout_width="100sp"
             android:layout_height="64sp"
             android:text="SAVE"
-            android:layout_toRightOf="@id/todoDetailsBackButton"
+            android:textStyle="bold"
             android:layout_marginHorizontal="16sp"/>
+
+        <Button
+            android:id="@+id/todoDetailsDeleteButton"
+            android:layout_width="100sp"
+            android:layout_height="64sp"
+            android:text="DELETE"
+            android:backgroundTint="@color/red"
+            android:textStyle="bold"
+            android:layout_marginHorizontal="8sp"/>
     </LinearLayout>
 
 </RelativeLayout>

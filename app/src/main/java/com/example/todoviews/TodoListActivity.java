@@ -52,16 +52,26 @@ public class TodoListActivity extends AppCompatActivity {
                     Bundle resultData = result.getData().getExtras();
                     if(resultData.getLong("ID") == -1) {
                         // new todoitem
-                        accessor.addTodo(new Todo(resultData.getString("TITLE"), resultData.getString("DESCRIPTION"), resultData.getLong("DUE_DATE")));
+                        Todo newTodo = new Todo(resultData.getString("TITLE"), resultData.getString("DESCRIPTION"),resultData.getLong("DUE_DATE"));
+                        newTodo.setDone(resultData.getBoolean("IS_DONE"));
+                        accessor.addTodo(newTodo);
                     } else {
-                        // update todoItem
-                        Todo todo = adapter.lookupItem(resultData.getLong("ID"));
-                        todo.setTitle(resultData.getString("TITLE", todo.getTitle()));
-                        todo.setDescription(resultData.getString("DESCRIPTION", todo.getDescription()));
-                        todo.setDueDate(resultData.getLong("DUE_DATE", todo.getDueDate()));
+                        if(resultData.getBoolean("DELETED", false)) {
+                            // delete todoItem
+                            Todo todo = adapter.lookupItem(resultData.getLong("ID"));
+                            accessor.deleteItem(todo);
+                        } else {
+                            // update todoItem
+                            Todo todo = adapter.lookupItem(resultData.getLong("ID"));
+                            todo.setTitle(resultData.getString("TITLE", todo.getTitle()));
+                            todo.setDescription(resultData.getString("DESCRIPTION", todo.getDescription()));
+                            todo.setDueDate(resultData.getLong("DUE_DATE", todo.getDueDate()));
+                            todo.setDone(resultData.getBoolean("IS_DONE", todo.isDone()));
 
-                        accessor.updateItem(todo);
+                            accessor.updateItem(todo);
+                        }
                     }
+
                 }
             }
         });
@@ -92,6 +102,7 @@ public class TodoListActivity extends AppCompatActivity {
         updateTodoIntent.putExtra("TITLE", todo.getTitle());
         updateTodoIntent.putExtra("DESCRIPTION", todo.getDescription());
         updateTodoIntent.putExtra("DUE_DATE", todo.getDueDate());
+        updateTodoIntent.putExtra("IS_DONE", todo.isDone());
 
         activityResultLauncher.launch(updateTodoIntent);
     }
