@@ -14,8 +14,8 @@ public interface TodoItemCRUDAccessor {
     public TodoItem createTodoItem(TodoItem todoItem);
 
     @DELETE
-    @Path("/{todoItemId}")
-    public boolean deleteTodoItem(@PathParam("todoItemId") long todoItemId);
+    @Path("/{todoId}")
+    public boolean deleteTodoItem(@PathParam("todoId") long todoItemId);
 
     @PUT
     public TodoItem updateTodoItem(TodoItem todoItem);

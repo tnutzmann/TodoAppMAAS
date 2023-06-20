@@ -13,17 +13,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import com.example.todoviews.accessor.TodoItemCRUDAccessor;
 
 public class MainActivity extends AppCompatActivity {
-    EditText emailEdit;
-    EditText passwordEdit;
-    TextView emailErrorText;
-    TextView passwordErrorText;
-    TextView loginErrorText;
-    Button loginButton;
-    ProgressBar progressBar;
-    Boolean emailIsValid = false;
-    Boolean passwordIsValid = false;
+    private EditText emailEdit;
+    private EditText passwordEdit;
+    private TextView emailErrorText;
+    private TextView passwordErrorText;
+    private TextView loginErrorText;
+    private Button loginButton;
+    private ProgressBar progressBar;
+    private Boolean emailIsValid = false;
+    private Boolean passwordIsValid = false;
+
+    private Button someTestButton; // wieder entfernen!!!
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,19 @@ public class MainActivity extends AppCompatActivity {
         loginErrorText = findViewById(R.id.loginErrorTextView);
         progressBar = findViewById(R.id.loginProgressBar);
 
+        someTestButton = findViewById(R.id.someTestButton);
+        someTestButton.setOnClickListener(new View.OnClickListener() {
+            TodoItemCRUDAccessor crudAccessor = new TodoItemCRUDAccessor("http://10.0.2.2:8080/backend-1.0-SNAPSHOT/rest");
+
+            @Override
+            public void onClick(View view) {
+                Thread th = new Thread(() -> {
+                    Log.i(MainActivity.class.getName(), "Test CLICK" + crudAccessor.readAllTodos());
+
+                });
+                th.start();
+            }
+        });
 
         emailEdit.addTextChangedListener(new TextWatcher() {
             @Override

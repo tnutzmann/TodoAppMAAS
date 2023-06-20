@@ -16,8 +16,5 @@ public interface ITodoListAccessor {
     // delete Todo
     public void deleteItem(Todo item);
 
-    // get specific Todo from the list
-    public Todo getSelectedItem(int position, long id);
-
     public void close();
 }

@@ -15,7 +15,7 @@ import java.util.List;
 public class TodoListFromRoomAccessor implements ITodoListAccessor{
     private int sortMode = 0; // 0 = Favourite first, 1 = dueDate first
     private TodoAdapter adapter;
-    protected static final String logger = ITodoListAccessor.class.getName();
+    protected static final String logger = TodoListFromRoomAccessor.class.getName();
 
     private Context context;
 
@@ -74,11 +74,6 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
         th.start();
         this.adapter.getTodoList().remove(this.adapter.lookupItem(item));
         this.adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public Todo getSelectedItem(int position, long id) {
-        return null;
     }
 
 
