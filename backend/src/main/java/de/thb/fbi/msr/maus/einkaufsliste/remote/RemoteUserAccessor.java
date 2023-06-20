@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class RemoteUserAccessor implements UserCRUDAccessor {
     protected static Logger logger = Logger.getLogger(RemoteTodoItemAccessor.class);
@@ -26,6 +27,11 @@ public class RemoteUserAccessor implements UserCRUDAccessor {
             if(u.getEmail().compareTo(user.getEmail()) == 0) {
                 if(u.getPassword().compareTo(user.getPassword()) == 0) return true;
             }
+        }
+        try {
+            TimeUnit.SECONDS.sleep(2);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
         return false;
     }
