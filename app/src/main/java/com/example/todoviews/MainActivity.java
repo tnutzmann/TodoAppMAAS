@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        new WebServiceAvailableCheckAsyncTask().execute();
+
         emailEdit = findViewById(R.id.emailEditText);
         emailErrorText = findViewById(R.id.emailErrorTextView);
         passwordEdit = findViewById(R.id.passwordEditText);
@@ -111,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
     private class LoginAsyncTask extends AsyncTask<User, Void, Boolean> {
         private UserCRUDAccessor loginClient = new UserCRUDAccessor(getString(R.string.WebServiceURL));
         ProgressDialog progressDialog;
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -142,5 +143,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private class WebServiceAvailableCheckAsyncTask extends AsyncTask<Void, Void, Boolean> {
+        private UserCRUDAccessor loginClient = new UserCRUDAccessor(getString(R.string.WebServiceURL));
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                loginClient.checkPassword(new User(0, "Just for Testingreasosn", "Probably this could be made in a better way..."));
+            } catch (Exception e) {
+                Log.i(logger, "Webservice not available!");
+                return false;
+            }
+            Log.i(logger, "Webservice available!");
+            return true;
+        }
 
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if(!aBoolean) startActivity(new Intent(MainActivity.this, TodoListActivity.class));
+        }
+    }
 }

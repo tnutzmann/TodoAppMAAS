@@ -27,16 +27,19 @@ public class TodoItemCRUDAccessor implements ITodoItemCRUDAccessor{
 
     @Override
     public Todo createTodo(Todo todo) {
-        return null;
+        Log.i(logger, "createTodo()");
+        return restClient.createTodo(todo);
     }
 
     @Override
     public boolean deleteTodo(long todoId) {
-        return false;
+        Log.i(logger, "deleteTodo()");
+        return restClient.deleteTodo(todoId);
     }
 
     @Override
     public Todo updateTodo(Todo todo) {
-        return null;
+        Log.i(logger, "updateTodo()");
+        return restClient.updateTodo(todo);
     }
 }

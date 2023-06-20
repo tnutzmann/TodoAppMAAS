@@ -18,6 +18,7 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
     protected static final String logger = TodoListFromRoomAccessor.class.getName();
 
     private Context context;
+    private boolean isWebservieAvailable;
 
     public TodoListFromRoomAccessor(Context context) {
         this.context = context;
