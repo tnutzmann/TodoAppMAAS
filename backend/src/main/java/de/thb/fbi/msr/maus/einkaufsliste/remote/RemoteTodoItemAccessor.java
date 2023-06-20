@@ -12,11 +12,6 @@ public class RemoteTodoItemAccessor implements TodoItemCRUDAccessor {
 
     private static final List<TodoItem> sTodoItemList = new ArrayList<TodoItem>();
 
-
-    public RemoteTodoItemAccessor() {
-        if(sTodoItemList.size() == 0) createTodoItem(new TodoItem(0, "Test", "Das ist ein Test", false, false, 1234353452));
-    }
-
     @Override
     public List<TodoItem> readAllTodoItems() {
         logger.info("readAllTodoItems(): " + sTodoItemList);

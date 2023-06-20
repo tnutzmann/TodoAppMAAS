@@ -15,6 +15,4 @@ public interface ITodoListAccessor {
 
     // delete Todo
     public void deleteItem(Todo item);
-
-    public void close();
 }

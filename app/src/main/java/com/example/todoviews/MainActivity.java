@@ -135,7 +135,9 @@ public class MainActivity extends AppCompatActivity {
             this.progressDialog.cancel();
             if(aBoolean == true) {
                 Log.i(logger, "Login Successful");
-                startActivity(new Intent(MainActivity.this, TodoListActivity.class));
+                Intent intent = new Intent(MainActivity.this, TodoListActivity.class);
+                intent.putExtra("WEBSERVICE", true);
+                startActivity(intent);
             } else {
                 Log.i(logger, "Login Unsuccessful");
                 loginErrorText.setVisibility(View.VISIBLE);
