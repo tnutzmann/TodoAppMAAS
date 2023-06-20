@@ -24,7 +24,7 @@
 
     <ToggleButton
         android:id="@+id/sortingToggleButton"
-        android:layout_width="wrap_content"
+        android:layout_width="100sp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"

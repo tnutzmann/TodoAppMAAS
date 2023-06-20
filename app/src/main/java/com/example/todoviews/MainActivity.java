@@ -1,34 +1,42 @@
 package com.example.todoviews;
 
+import android.app.ProgressDialog;
+import android.content.AsyncQueryHandler;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.CountDownTimer;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import com.example.todoviews.accessor.TodoItemCRUDAccessor;
+import com.example.todoviews.accessor.UserCRUDAccessor;
+import com.example.todoviews.models.User;
 
 public class MainActivity extends AppCompatActivity {
-    EditText emailEdit;
-    EditText passwordEdit;
-    TextView emailErrorText;
-    TextView passwordErrorText;
-    TextView loginErrorText;
-    Button loginButton;
-    ProgressBar progressBar;
-    Boolean emailIsValid = false;
-    Boolean passwordIsValid = false;
+    protected static String logger = TodoItemCRUDAccessor.class.getName();
+
+    private EditText emailEdit;
+    private EditText passwordEdit;
+    private TextView emailErrorText;
+    private TextView passwordErrorText;
+    private TextView loginErrorText;
+    private Button loginButton;
+    private Boolean emailIsValid = false;
+    private Boolean passwordIsValid = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        new WebServiceAvailableCheckAsyncTask().execute();
 
         emailEdit = findViewById(R.id.emailEditText);
         emailErrorText = findViewById(R.id.emailErrorTextView);
@@ -39,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
         loginButton.setEnabled(false);
         loginButton.setOnClickListener(this::onLoginButtonClick);
         loginErrorText = findViewById(R.id.loginErrorTextView);
-        progressBar = findViewById(R.id.loginProgressBar);
-
 
         emailEdit.addTextChangedListener(new TextWatcher() {
             @Override
@@ -94,31 +100,69 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onLoginButtonClick(View v) {
-        Log.i(MainActivity.class.getName(), String.format("Password: %d. EMAIL: %d", Integer.parseInt(passwordEdit.getText().toString()), emailEdit.getText().toString().length() ));
-        progressBar.setVisibility(View.VISIBLE);
-        new CountDownTimer(3000,100){
-            int progress = 0;
-            @Override
-            public void onTick(long l) {
-                progress = 100 - (int) (l/100);
-                progressBar.setProgress(progress);
-            }
-
-            @Override
-            public void onFinish() {
-                if(Integer.parseInt(passwordEdit.getText().toString()) == emailEdit.getText().toString().length()) {
-                    loginErrorText.setVisibility(View.VISIBLE);
-                } else {
-                    Log.i(MainActivity.class.getName(), "onLoginButtonClick() " + v);
-                    startActivity(new Intent(MainActivity.this, TodoListActivity.class));
-                }
-                progressBar.setVisibility(View.INVISIBLE);
-            }
-        }.start();
+        User user = new User(0, emailEdit.getText().toString(), passwordEdit.getText().toString());
+        UserCRUDAccessor loginClient = new UserCRUDAccessor(getString(R.string.WebServiceURL));
+        new LoginAsyncTask().execute(user);
     }
 
     private void checkLoginActivation() {
         loginButton.setEnabled(passwordIsValid && emailIsValid);
         loginErrorText.setVisibility(View.INVISIBLE);
+    }
+
+    private class LoginAsyncTask extends AsyncTask<User, Void, Boolean> {
+        private UserCRUDAccessor loginClient = new UserCRUDAccessor(getString(R.string.WebServiceURL));
+        ProgressDialog progressDialog;
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            this.progressDialog = ProgressDialog.show(MainActivity.this, "Login...", "Please wait.", false, true);
+        }
+
+        @Override
+        protected Boolean doInBackground(User... users) {
+            boolean loginSuccess = false;
+            for(User u : users) {
+                Log.i(logger, String.format("Password: %s. EMAIL: %s", u.getPassword(), u.getEmail()));
+                loginSuccess = loginClient.checkPassword(u);
+            }
+            return loginSuccess;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            this.progressDialog.cancel();
+            if(aBoolean == true) {
+                Log.i(logger, "Login Successful");
+                Intent intent = new Intent(MainActivity.this, TodoListActivity.class);
+                intent.putExtra("WEBSERVICE", true);
+                startActivity(intent);
+            } else {
+                Log.i(logger, "Login Unsuccessful");
+                loginErrorText.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    private class WebServiceAvailableCheckAsyncTask extends AsyncTask<Void, Void, Boolean> {
+        private UserCRUDAccessor loginClient = new UserCRUDAccessor(getString(R.string.WebServiceURL));
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                loginClient.checkPassword(new User(0, "Just for Testingreasosn", "Probably this could be made in a better way..."));
+            } catch (Exception e) {
+                Log.i(logger, "Webservice not available!");
+                return false;
+            }
+            Log.i(logger, "Webservice available!");
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if(!aBoolean) startActivity(new Intent(MainActivity.this, TodoListActivity.class));
+        }
     }
 }

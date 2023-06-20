@@ -3,9 +3,11 @@ package com.example.todoviews.models;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 
 @Entity
-public class Todo {
+public class Todo implements Serializable {
     private static long ID = 0;
     @PrimaryKey(autoGenerate = true)
     private long id;
@@ -28,6 +30,10 @@ public class Todo {
         this.isDone = isDone;
         this.isFavourite = isFavorite;
         this.dueDate = dueDate;
+    }
+
+    public Todo() {
+
     }
 
     public long getId() {
@@ -96,4 +102,15 @@ public class Todo {
         return -1;
     }
 
+    @Override
+    public String toString() {
+        return "Todo{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", isDone=" + isDone +
+                ", isFavourite=" + isFavourite +
+                ", dueDate=" + dueDate +
+                '}';
+    }
 }

@@ -32,21 +32,36 @@
         android:layout_below="@id/detailsTodoDescriptionText"
         android:layout_margin="4sp"/>
 
-    <CheckBox
-        android:id="@+id/detailsTodoIsDoneCheckBox"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/detailsCheckBoxLayout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="is Done"
-        android:layout_marginHorizontal="32sp"
-        android:layout_below="@id/detailsTodoDescription"
-        />
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/detailsTodoDescription" >
+        <CheckBox
+            android:id="@+id/detailsTodoIsDoneCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="is Done"
+            android:layout_marginHorizontal="32sp"
+            />
+
+        <CheckBox
+            android:id="@+id/detailsTodoIsFavouriteCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="is Favourite"
+            android:button="@drawable/favourite_checkbox_btn"
+            android:layout_marginHorizontal="32sp"
+            />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/detailsTodoDueDateText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Due Date"
-        android:layout_below="@id/detailsTodoIsDoneCheckBox"
+        android:layout_below="@id/detailsCheckBoxLayout"
         android:layout_margin="4sp"/>
 
     <DatePicker

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -31,18 +32,28 @@ public class TodoListActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private TodoAdapter adapter;
 
+    boolean isWebservieAvailable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_todo_list);
 
+        isWebservieAvailable = getIntent().getBooleanExtra("WEBSERVICE", false);
+
         todoRecyclerView = findViewById(R.id.todoRecyclerView);
         todoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        accessor = new TodoListFromRoomAccessor(this);
+        addTodoBtn = findViewById(R.id.openAddTodoDialogButton);
+        addTodoBtn.setOnClickListener(this::onAddTodoBtnClick);
+        sortingSwitch = findViewById(R.id.sortingToggleButton);
+        sortingSwitch.setOnCheckedChangeListener(this::onSortingSwitchChanged);
 
+        accessor = new TodoListFromRoomAccessor(this, isWebservieAvailable);
         adapter = accessor.getAdapter();
         todoRecyclerView.setAdapter(adapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RecyclerItemTouchHelper(adapter));
+        itemTouchHelper.attachToRecyclerView(todoRecyclerView);
 
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
@@ -52,8 +63,9 @@ public class TodoListActivity extends AppCompatActivity {
                     Bundle resultData = result.getData().getExtras();
                     if(resultData.getLong("ID") == -1) {
                         // new todoitem
-                        Todo newTodo = new Todo(resultData.getString("TITLE"), resultData.getString("DESCRIPTION"),resultData.getLong("DUE_DATE"));
-                        newTodo.setDone(resultData.getBoolean("IS_DONE"));
+                        Todo newTodo = new Todo(resultData.getString("TITLE", "UNTITLED"), resultData.getString("DESCRIPTION", ""), resultData.getLong("DUE_DATE", System.currentTimeMillis()));
+                        newTodo.setDone(resultData.getBoolean("IS_DONE", false));
+                        newTodo.setFavourite(resultData.getBoolean("IS_FAV", false));
                         accessor.addTodo(newTodo);
                     } else {
                         if(resultData.getBoolean("DELETED", false)) {
@@ -67,6 +79,7 @@ public class TodoListActivity extends AppCompatActivity {
                             todo.setDescription(resultData.getString("DESCRIPTION", todo.getDescription()));
                             todo.setDueDate(resultData.getLong("DUE_DATE", todo.getDueDate()));
                             todo.setDone(resultData.getBoolean("IS_DONE", todo.isDone()));
+                            todo.setFavourite(resultData.getBoolean("IS_FAV", todo.isFavourite()));
 
                             accessor.updateItem(todo);
                         }
@@ -75,15 +88,15 @@ public class TodoListActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RecyclerItemTouchHelper(adapter));
-        itemTouchHelper.attachToRecyclerView(todoRecyclerView);
-
-        addTodoBtn = findViewById(R.id.openAddTodoDialogButton);
-        addTodoBtn.setOnClickListener(this::onAddTodoBtnClick);
-
-        sortingSwitch = findViewById(R.id.sortingToggleButton);
-        sortingSwitch.setOnCheckedChangeListener(this::onSortingSwitchChanged);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!isWebservieAvailable) {
+            Toast toast = Toast.makeText(this, "Webservice unavailable!", Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 
     private void onAddTodoBtnClick(View v) {
@@ -103,6 +116,7 @@ public class TodoListActivity extends AppCompatActivity {
         updateTodoIntent.putExtra("DESCRIPTION", todo.getDescription());
         updateTodoIntent.putExtra("DUE_DATE", todo.getDueDate());
         updateTodoIntent.putExtra("IS_DONE", todo.isDone());
+        updateTodoIntent.putExtra("IS_FAV", todo.isFavourite());
 
         activityResultLauncher.launch(updateTodoIntent);
     }
