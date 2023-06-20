@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">TodoViews</string>
 
+    <string name="WebServiceURL">http://10.0.2.2:8080/backend-1.0-SNAPSHOT/rest</string>
+
     <string-array name="todoItems">
         <item>Todo 1</item>
         <item>Todo 2</item>

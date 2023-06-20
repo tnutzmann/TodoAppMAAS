@@ -19,6 +19,7 @@ public class todoDetailsActivity extends AppCompatActivity {
     private DatePicker todoDatePicker;
     private TimePicker todoTimePicker;
     private CheckBox todoIsDoneCheckBox;
+    private  CheckBox todoIsFavouriteCheckBox;
     private Button saveButton;
     private Button backButton;
     private Button deleteButton;
@@ -30,6 +31,7 @@ public class todoDetailsActivity extends AppCompatActivity {
     private String todoTitle;
     private String todoDescription;
     private boolean todoIsDone;
+    private boolean todoIsFavourite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,7 @@ public class todoDetailsActivity extends AppCompatActivity {
         todoDatePicker = findViewById(R.id.detailsTodoDate);
         todoTimePicker = findViewById(R.id.detailsTodoTime);
         todoIsDoneCheckBox = findViewById(R.id.detailsTodoIsDoneCheckBox);
+        todoIsFavouriteCheckBox = findViewById(R.id.detailsTodoIsFavouriteCheckBox);
 
         saveButton = findViewById(R.id.todoDetailsSaveButton);
         backButton = findViewById(R.id.todoDetailsBackButton);
@@ -57,6 +60,7 @@ public class todoDetailsActivity extends AppCompatActivity {
         todoDescription = caller.getStringExtra("DESCRIPTION");
         if(todoDescription == null) todoDescription = "";
         todoIsDone = caller.getBooleanExtra("IS_DONE", false);
+        todoIsFavourite = caller.getBooleanExtra("IS_FAV", false);
 
 
         // write data to UI elements
@@ -70,11 +74,17 @@ public class todoDetailsActivity extends AppCompatActivity {
         todoTimePicker.setMinute(todoDueDate.getMinutes());
 
         todoIsDoneCheckBox.setChecked(todoIsDone);
+        todoIsFavouriteCheckBox.setChecked(todoIsFavourite);
 
         // register button events
         saveButton.setOnClickListener(this::saveTodo);
         backButton.setOnClickListener(this::abort);
         deleteButton.setOnClickListener(this::deleteTodo);
+
+        if(todoId == -1) {
+            // -1 means new todoItem will be created so no Deletebutton is needed
+            deleteButton.setVisibility(View.GONE);
+        }
     }
 
     void updateTodoValues() {
@@ -91,6 +101,7 @@ public class todoDetailsActivity extends AppCompatActivity {
         todoDueDateTimestamp = todoDueDate.getTime();
 
         todoIsDone = todoIsDoneCheckBox.isChecked();
+        todoIsFavourite = todoIsFavouriteCheckBox.isChecked();
     }
 
     void saveTodo(View v) {
@@ -102,6 +113,7 @@ public class todoDetailsActivity extends AppCompatActivity {
         resultIntent.putExtra("DESCRIPTION", todoDescription);
         resultIntent.putExtra("DUE_DATE", todoDueDateTimestamp);
         resultIntent.putExtra("IS_DONE", todoIsDone);
+        resultIntent.putExtra("IS_FAV", todoIsFavourite);
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
