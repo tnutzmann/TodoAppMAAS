@@ -14,6 +14,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import com.example.todoviews.accessor.TodoItemCRUDAccessor;
+import com.example.todoviews.accessor.UserCRUDAccessor;
+import com.example.todoviews.models.User;
 
 public class MainActivity extends AppCompatActivity {
     private EditText emailEdit;
@@ -46,12 +48,13 @@ public class MainActivity extends AppCompatActivity {
 
         someTestButton = findViewById(R.id.someTestButton);
         someTestButton.setOnClickListener(new View.OnClickListener() {
-            TodoItemCRUDAccessor crudAccessor = new TodoItemCRUDAccessor("http://10.0.2.2:8080/backend-1.0-SNAPSHOT/rest");
+            UserCRUDAccessor crudAccessor = new UserCRUDAccessor(getString(R.string.WebServiceURL));
 
             @Override
             public void onClick(View view) {
                 Thread th = new Thread(() -> {
-                    Log.i(MainActivity.class.getName(), "Test CLICK" + crudAccessor.readAllTodos());
+                    Log.i(MainActivity.class.getName(), "Test CLICK: " + crudAccessor.checkPassword(new User(0, "tony@thb.de", "123456")));
+                    Log.i(MainActivity.class.getName(), "Test CLICK: " + crudAccessor.checkPassword(new User(0, "tony@thb.de", "123457")));
 
                 });
                 th.start();
