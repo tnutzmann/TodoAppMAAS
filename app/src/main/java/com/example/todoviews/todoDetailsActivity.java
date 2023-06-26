@@ -19,7 +19,7 @@ public class todoDetailsActivity extends AppCompatActivity {
     private DatePicker todoDatePicker;
     private TimePicker todoTimePicker;
     private CheckBox todoIsDoneCheckBox;
-    private  CheckBox todoIsFavouriteCheckBox;
+    private CheckBox todoIsFavouriteCheckBox;
     private Button saveButton;
     private Button backButton;
     private Button deleteButton;
@@ -87,7 +87,7 @@ public class todoDetailsActivity extends AppCompatActivity {
         }
     }
 
-    void updateTodoValues() {
+    private void updateTodoValues() {
         todoTitle = todoTitleEdit.getText().toString();
         todoDescription = todoDescriptionEdit.getText().toString();
         // date and Time handling
@@ -104,7 +104,7 @@ public class todoDetailsActivity extends AppCompatActivity {
         todoIsFavourite = todoIsFavouriteCheckBox.isChecked();
     }
 
-    void saveTodo(View v) {
+    private void saveTodo(View v) {
         updateTodoValues();
 
         Intent resultIntent = new Intent();
@@ -118,7 +118,7 @@ public class todoDetailsActivity extends AppCompatActivity {
         finish();
     }
 
-    void deleteTodo(View v) {
+    private void deleteTodo(View v) {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setTitle("DELETE TDOD");
         alertBuilder.setMessage("Are you sure to delete this TODO");
@@ -137,7 +137,7 @@ public class todoDetailsActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    void abort(View v) {
+    private void abort(View v) {
         Intent resultIntent = new Intent();
         setResult(Activity.RESULT_CANCELED, resultIntent);
         finish();

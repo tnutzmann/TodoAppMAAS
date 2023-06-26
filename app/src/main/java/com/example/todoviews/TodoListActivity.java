@@ -120,7 +120,7 @@ public class TodoListActivity extends AppCompatActivity {
         activityResultLauncher.launch(updateTodoIntent);
     }
 
-    public void onSortingSwitchChanged(CompoundButton compoundButton, boolean isChecked) {
+    private void onSortingSwitchChanged(CompoundButton compoundButton, boolean isChecked) {
         if(isChecked) {
             ((TodoListFromRoomAccessor)this.accessor).setDateFirstSorting();
         } else {
