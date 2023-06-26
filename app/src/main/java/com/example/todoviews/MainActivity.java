@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void onLoginButtonClick(View v) {
         User user = new User(0, emailEdit.getText().toString(), passwordEdit.getText().toString());
-        UserCRUDAccessor loginClient = new UserCRUDAccessor(getString(R.string.WebServiceURL));
         new LoginAsyncTask().execute(user);
     }
 
