@@ -1,16 +1,13 @@
 package com.example.todoviews.accessor;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
-import androidx.core.content.ContextCompat;
 import com.example.todoviews.R;
 import com.example.todoviews.adapter.TodoAdapter;
 import com.example.todoviews.models.Todo;
 import com.example.todoviews.utils.AppDatabase;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class TodoListFromRoomAccessor implements ITodoListAccessor{
@@ -22,17 +19,52 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
     private Context context;
     private boolean isWebservieAvailable;
 
-    public TodoListFromRoomAccessor(Context context, boolean isWebservieAvailable) {
+    public TodoListFromRoomAccessor(Context context, boolean isWebserviceAvailable) {
         this.context = context;
         this.restClient = new TodoItemCRUDAccessor(context.getString(R.string.WebServiceURL));
-        this.isWebservieAvailable = isWebservieAvailable;
+        this.isWebservieAvailable = isWebserviceAvailable;
+    }
+
+    @Override
+    public List<Todo> readAllTodos() {
+        List<Todo> todoList = new ArrayList<>();
+        Thread th = new Thread(() -> {
+            for(Todo t : AppDatabase.getInstance(context).todoDao().getAll()) {
+                todoList.add(t);
+            }
+            if(isWebservieAvailable) {
+                Log.i(logger, "GET ALL: "+ todoList);
+                if(todoList.size() != 0) {
+                    // Case: local todos from db exists, web todos need to be deleted, and todos from db are transferred to webservice
+                    Log.i(logger, "Local Todos are used.");
+                    for(Todo t : restClient.readAllTodos()) {
+                        Log.i(logger, "DELETE TODO: " + t );
+                        restClient.deleteTodo(t.getId());
+                    }
+                    for(Todo t : todoList) {
+                        restClient.addTodo(t);
+                    }
+                } else {
+                    // Case: no local todos, todos from Webservice need to be transferred to db
+                    Log.i(logger, "Remote Todos are used.");
+                    for(Todo t : restClient.readAllTodos()) {
+                        todoList.add(t);
+                        AppDatabase.getInstance(context).todoDao().insert(t);
+                    }
+                }
+            }
+            this.sortTodoList();
+            //this.adapter.notifyDataSetChanged();
+        });
+        th.start();
+        return todoList;
     }
 
     @Override
     public void addTodo(Todo item) {
         Thread th = new Thread(() -> {
             if(isWebservieAvailable) {
-                restClient.createTodo(item);
+                restClient.addTodo(item);
             }
 
             AppDatabase.getInstance(context).todoDao().insert(item);
@@ -45,46 +77,15 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
         this.adapter.notifyDataSetChanged();
     }
 
-    @Override
     public TodoAdapter getAdapter() {
         if(adapter == null) {
-            List<Todo> todoList = new ArrayList<>();
-            Thread th = new Thread(() -> {
-                for(Todo t : AppDatabase.getInstance(context).todoDao().getAll()) {
-                    todoList.add(t);
-                }
-                if(isWebservieAvailable) {
-                    Log.i(logger, "GET ALL: "+ todoList);
-                    if(todoList.size() != 0) {
-                        // Case: local todos from db exists, web todos need to be deleted, and todos from db are transferred to webservice
-                        Log.i(logger, "Local Todos are used.");
-                        for(Todo t : restClient.readAllTodos()) {
-                            Log.i(logger, "DELETE TODO: " + t );
-                            restClient.deleteTodo(t.getId());
-                        }
-                        for(Todo t : todoList) {
-                            restClient.createTodo(t);
-                        }
-                    } else {
-                        // Case: no local todos, todos from Webservice need to be transferred to db
-                        Log.i(logger, "Remote Todos are used.");
-                        for(Todo t : restClient.readAllTodos()) {
-                            todoList.add(t);
-                            AppDatabase.getInstance(context).todoDao().insert(t);
-                        }
-                    }
-                }
-                this.sortTodoList();
-                //this.adapter.notifyDataSetChanged();
-            });
-            th.start();
-            this.adapter = new TodoAdapter(this.context, todoList, this);
+            this.adapter = new TodoAdapter(this.context, this.readAllTodos(), this);
         }
         return this.adapter;
     }
 
     @Override
-    public void updateItem(Todo newTodo) {
+    public void updateTodo(Todo newTodo) {
         Todo oldTodo = this.adapter.lookupItem(newTodo);
         oldTodo.update(newTodo);
         Thread th = new Thread(() ->{
@@ -101,18 +102,21 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
     }
 
     @Override
-    public void deleteItem(Todo item) {
-        Thread th = new Thread(() -> {
-            if(isWebservieAvailable) {
-                restClient.deleteTodo(item.getId());
-            }
-
-            Log.i(logger, "DELETE todo: " + item);
-            AppDatabase.getInstance(this.context).todoDao().deleteTodo(item);
-        });
-        th.start();
-        this.adapter.getTodoList().remove(this.adapter.lookupItem(item));
-        this.adapter.notifyDataSetChanged();
+    public boolean deleteTodo(long todoId) {
+        Todo todo = adapter.lookupItem(todoId);
+        Boolean isDeleted = this.adapter.getTodoList().remove(todo);
+        if(isDeleted) {
+            Thread th = new Thread(() -> {
+                if(isWebservieAvailable) {
+                    restClient.deleteTodo(todoId);
+                }
+                Log.i(logger, "DELETE todo: " + todo);
+                AppDatabase.getInstance(this.context).todoDao().deleteTodo(todo);
+            });
+            th.start();
+            this.adapter.notifyDataSetChanged();
+        }
+        return isDeleted;
     }
 
     // Sorting stuff

@@ -8,14 +8,14 @@ import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 
 import java.util.List;
 
-public class TodoItemCRUDAccessor implements ITodoItemCRUDAccessor{
+public class TodoItemCRUDAccessor implements ITodoListAccessor{
     protected static String logger = TodoItemCRUDAccessor.class.getName();
-    private ITodoItemCRUDAccessor restClient;
+    private ITodoListAccessor restClient;
 
     public TodoItemCRUDAccessor(String url) {
         Log.i(logger,"initialising restClient for URL: " + url);
 
-        this.restClient = ProxyFactory.create(ITodoItemCRUDAccessor.class, url, new ApacheHttpClient4Executor());
+        this.restClient = ProxyFactory.create(ITodoListAccessor.class, url, new ApacheHttpClient4Executor());
         Log.i(logger,"initialised restClient: " + restClient + " of class " + restClient.getClass());
     }
 
@@ -26,9 +26,9 @@ public class TodoItemCRUDAccessor implements ITodoItemCRUDAccessor{
     }
 
     @Override
-    public Todo createTodo(Todo todo) {
+    public void addTodo(Todo todo) {
         Log.i(logger, "createTodo()");
-        return restClient.createTodo(todo);
+        restClient.addTodo(todo);
     }
 
     @Override
@@ -38,8 +38,8 @@ public class TodoItemCRUDAccessor implements ITodoItemCRUDAccessor{
     }
 
     @Override
-    public Todo updateTodo(Todo todo) {
+    public void updateTodo(Todo todo) {
         Log.i(logger, "updateTodo()");
-        return restClient.updateTodo(todo);
+        restClient.updateTodo(todo);
     }
 }

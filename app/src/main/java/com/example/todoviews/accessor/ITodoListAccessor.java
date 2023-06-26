@@ -3,16 +3,23 @@ package com.example.todoviews.accessor;
 import com.example.todoviews.adapter.TodoAdapter;
 import com.example.todoviews.models.Todo;
 
+import javax.ws.rs.*;
+import java.util.List;
+
+@Path("/todoitems")
+@Consumes({ "application/json" })
+@Produces({ "application/json" })
 public interface ITodoListAccessor {
-    // add an Todo to the list
+    @GET
+    public List<Todo> readAllTodos();
+
+    @POST
     public void addTodo(Todo item);
 
-    // get an adapter for the TodoList
-    public TodoAdapter getAdapter();
+    @PUT
+    public void updateTodo(Todo item);
 
-    // pdate an existing Todo
-    public void updateItem(Todo item);
-
-    // delete Todo
-    public void deleteItem(Todo item);
+    @DELETE
+    @Path("/{todoId}")
+    public boolean deleteTodo(@PathParam("todoId") long todoId);
 }

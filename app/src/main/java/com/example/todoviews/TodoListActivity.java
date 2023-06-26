@@ -1,7 +1,6 @@
 package com.example.todoviews;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.util.Log;
 import android.view.View;
@@ -26,7 +25,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class TodoListActivity extends AppCompatActivity {
     private RecyclerView todoRecyclerView;
-    private ITodoListAccessor accessor;
+    private TodoListFromRoomAccessor accessor;
     private FloatingActionButton addTodoBtn;
     private ToggleButton sortingSwitch;
     private ActivityResultLauncher<Intent> activityResultLauncher;
@@ -71,7 +70,7 @@ public class TodoListActivity extends AppCompatActivity {
                         if(resultData.getBoolean("DELETED", false)) {
                             // delete todoItem
                             Todo todo = adapter.lookupItem(resultData.getLong("ID"));
-                            accessor.deleteItem(todo);
+                            accessor.deleteTodo(todo.getId());
                         } else {
                             // update todoItem
                             Todo todo = adapter.lookupItem(resultData.getLong("ID"));
@@ -81,7 +80,7 @@ public class TodoListActivity extends AppCompatActivity {
                             todo.setDone(resultData.getBoolean("IS_DONE", todo.isDone()));
                             todo.setFavourite(resultData.getBoolean("IS_FAV", todo.isFavourite()));
 
-                            accessor.updateItem(todo);
+                            accessor.updateTodo(todo);
                         }
                     }
 

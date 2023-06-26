@@ -62,7 +62,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 Log.i(this.getClass().getName(), "DoneCheckBox was clicked");
                 todo.setDone(isChecked);
-                accessor.updateItem(todo);
+                accessor.updateTodo(todo);
             }
         });
 
@@ -71,7 +71,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 Log.i(this.getClass().getName(), "FavouritCheckBox was clicked");
                 todo.setFavourite(isChecked);
-                accessor.updateItem(todo);
+                accessor.updateTodo(todo);
             }
         });
     }
@@ -99,11 +99,11 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
     }
 
     public void deleteTodo(int position) {
-        accessor.deleteItem(todoList.get(position));
+        accessor.deleteTodo(todoList.get(position).getId());
     }
 
     public void editTodo(int position) {
-        accessor.updateItem(todoList.get(position));
+        accessor.updateTodo(todoList.get(position));
     }
 
     public Todo lookupItem(Todo item) {
