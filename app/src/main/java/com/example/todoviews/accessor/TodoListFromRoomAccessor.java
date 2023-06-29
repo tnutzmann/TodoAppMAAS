@@ -54,7 +54,7 @@ public class TodoListFromRoomAccessor implements ITodoListAccessor{
                 }
             }
             this.sortTodoList();
-            //this.adapter.notifyDataSetChanged();
+            this.adapter.notifyDataSetChanged();
         });
         th.start();
         return todoList;
